@@ -1,66 +1,44 @@
 package com.example.tesseract.cryptomonitoring.ui.activity;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.widget.CheckBox;
-import android.widget.Spinner;
-
-import com.example.tesseract.cryptomonitoring.network.model.CompleteTicker;
-import com.example.tesseract.cryptomonitoring.network.model.Market;
-import com.example.tesseract.cryptomonitoring.presentation.view.MonitorView;
-import com.example.tesseract.cryptomonitoring.presentation.presenter.MonitorPresenter;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
-
-import com.example.tesseract.cryptomonitoring.R;
-
 import com.arellomobile.mvp.presenter.InjectPresenter;
-import com.example.tesseract.cryptomonitoring.storage.temp.TempStorage;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
-import java.util.List;
+import com.example.tesseract.cryptomonitoring.R;
+import com.example.tesseract.cryptomonitoring.network.RetrofitFactory;
+import com.example.tesseract.cryptomonitoring.network.model.ISSNow;
+import com.example.tesseract.cryptomonitoring.presentation.presenter.MonitorPresenter;
+import com.example.tesseract.cryptomonitoring.presentation.view.MonitorView;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnItemSelected;
 
-public class MonitorActivity extends MvpAppCompatActivity implements MonitorView {
+public class MonitorActivity extends MvpAppCompatActivity implements MonitorView,OnMapReadyCallback {
     public static final String TAG = "MonitorActivity";
     @InjectPresenter
     MonitorPresenter mMonitorPresenter;
 
-    @BindView(R.id.activity_monitor_view_crypto_graph)
-    GraphView graphView;
-
-    @BindView(R.id.activity_monitor_spinner_platform)
-    Spinner platformSpinner;
+    private GoogleMap mMap;
+    private Marker lastMarker;
 
     @BindView(R.id.activity_monitor_view_main_layout)
     ConstraintLayout mainLayout;
 
-    private boolean eth = false;
-
-    @OnCheckedChanged(R.id.activity_monitor_check_box)
-    void cryptSelected(CheckBox button, boolean checked) {
-        eth = checked;
-        if (checked) {
-            button.setText("ETH");
-        } else {
-            button.setText("BTC");
-        }
-    }
-
-    @OnItemSelected(R.id.activity_monitor_spinner_platform)
-    public void spinnerItemSelected(Spinner spinner, int position) {
-
-    }
 
     public static Intent getIntent(final Context context) {
         return new Intent(context, MonitorActivity.class);
@@ -71,24 +49,18 @@ public class MonitorActivity extends MvpAppCompatActivity implements MonitorView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
         ButterKnife.bind(this);
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.activity_monitor_map_view);
+        mapFragment.getMapAsync(this);
         mMonitorPresenter.init();
-    }
-
-    private void setGraph(List<CompleteTicker> tickets) {
-        LineGraphSeries<DataPoint> graphs = new LineGraphSeries<>();
-        for (CompleteTicker ticket : tickets) {
-            Log.e(TAG,ticket.timestamp.toString());
-        }
-        graphView.addSeries(graphs);
-    }
-
-    @Override
-    public void updateCrypt(List<CompleteTicker> ethList, List<CompleteTicker> btcList) {
-        if(eth){
-            setGraph(ethList);
-        }else{
-            setGraph(btcList);
-        }
+        RetrofitFactory.getIntData().observe(this, new Observer<ISSNow>() {
+            @Override
+            public void onChanged(@Nullable ISSNow issNow) {
+                if (issNow != null) {
+                    updateCoordinates(issNow.longitude, issNow.latitude);
+                }
+            }
+        });
     }
 
     @Override
@@ -96,4 +68,16 @@ public class MonitorActivity extends MvpAppCompatActivity implements MonitorView
         Snackbar.make(mainLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
+    private void updateCoordinates(Double longitude, Double latitude){
+        lastMarker.setPosition(new LatLng(latitude,longitude));
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        LatLng pos = new LatLng(0, 0);
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.iss);
+        MarkerOptions markerOP = new MarkerOptions().position(pos).title("ISS").icon(icon);
+        lastMarker = mMap.addMarker(markerOP);
+    }
 }

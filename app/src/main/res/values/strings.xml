@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Crypto Monitoring</string>
+    <string name="app_name">ISSNow</string>
     <string name="btc_usd">BTC-USD</string>
     <string name="eth_usd">ETH-USD</string>
 </resources>

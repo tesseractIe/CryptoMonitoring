@@ -6,30 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MonitorActivity">
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/activity_monitor_view_crypto_graph"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/activity_monitor_check_box"
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/activity_monitor_map_view"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/activity_monitor_spinner_platform"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/activity_monitor_check_box"
-        app:layout_constraintTop_toBottomOf="@+id/activity_monitor_view_crypto_graph" />
-
-    <CheckBox
-        android:id="@+id/activity_monitor_check_box"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BTC"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 </android.support.constraint.ConstraintLayout>
