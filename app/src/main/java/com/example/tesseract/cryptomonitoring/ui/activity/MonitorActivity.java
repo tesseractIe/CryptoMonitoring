@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Spinner;
 
 import com.example.tesseract.cryptomonitoring.network.model.CompleteTicker;
@@ -19,6 +19,7 @@ import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.example.tesseract.cryptomonitoring.R;
 
 import com.arellomobile.mvp.presenter.InjectPresenter;
+import com.example.tesseract.cryptomonitoring.storage.temp.TempStorage;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -28,7 +29,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
 import butterknife.OnItemSelected;
 
 public class MonitorActivity extends MvpAppCompatActivity implements MonitorView {
@@ -39,11 +39,20 @@ public class MonitorActivity extends MvpAppCompatActivity implements MonitorView
     @BindView(R.id.activity_monitor_view_crypto_graph)
     GraphView graphView;
 
+    @BindView(R.id.activity_monitor_spinner_platform)
+    Spinner platformSpinner;
+
+    @BindView(R.id.activity_monitor_view_main_layout)
+    ConstraintLayout mainLayout;
+
+    private boolean eth = false;
+
     @OnCheckedChanged(R.id.activity_monitor_check_box)
     void cryptSelected(CheckBox button, boolean checked) {
-        if(checked){
+        eth = checked;
+        if (checked) {
             button.setText("ETH");
-        }else{
+        } else {
             button.setText("BTC");
         }
     }
@@ -53,14 +62,9 @@ public class MonitorActivity extends MvpAppCompatActivity implements MonitorView
 
     }
 
-    @BindView(R.id.activity_monitor_view_main_layout)
-    ConstraintLayout mainLayout;
-
     public static Intent getIntent(final Context context) {
-        Intent intent = new Intent(context, MonitorActivity.class);
-        return intent;
+        return new Intent(context, MonitorActivity.class);
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,22 +74,26 @@ public class MonitorActivity extends MvpAppCompatActivity implements MonitorView
         mMonitorPresenter.init();
     }
 
-    @Override
-    public void updateGraph(List<CompleteTicker> tickets) {
+    private void setGraph(List<CompleteTicker> tickets) {
         LineGraphSeries<DataPoint> graphs = new LineGraphSeries<>();
-        for(CompleteTicker ticket : tickets){
-            //TODO: parse tickets
+        for (CompleteTicker ticket : tickets) {
+            Log.e(TAG,ticket.timestamp.toString());
         }
         graphView.addSeries(graphs);
     }
 
     @Override
-    public void updatePlatforms(List<Market> markets) {
-
+    public void updateCrypt(List<CompleteTicker> ethList, List<CompleteTicker> btcList) {
+        if(eth){
+            setGraph(ethList);
+        }else{
+            setGraph(btcList);
+        }
     }
 
     @Override
     public void setErrorMessage(String message) {
-        Snackbar.make(mainLayout,message,Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(mainLayout, message, Snackbar.LENGTH_SHORT).show();
     }
+
 }

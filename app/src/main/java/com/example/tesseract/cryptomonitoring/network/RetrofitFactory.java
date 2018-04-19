@@ -3,7 +3,7 @@ package com.example.tesseract.cryptomonitoring.network;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RetrofitService {
+public class RetrofitFactory {
     private static final String URL = "https://api.cryptonator.com";
 
     public static <T> T sR(final Class<T> clazz) {

@@ -7,7 +7,6 @@ import com.example.tesseract.cryptomonitoring.network.model.Market;
 import java.util.List;
 
 public interface MonitorView extends MvpView {
-    void updateGraph(List<CompleteTicker> tickets);
-    void updatePlatforms(List<Market> markets);
+    void updateCrypt(List<CompleteTicker> ethList, List<CompleteTicker> btcList);
     void setErrorMessage(String message);
 }
